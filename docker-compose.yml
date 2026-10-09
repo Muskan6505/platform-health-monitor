@@ -1,5 +1,12 @@
 
 services:
+  api:
+    build: .
+    container_name: platform-api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
     container_name: platform-prometheus
@@ -7,8 +14,8 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      - api
     restart: unless-stopped
 
   grafana:
@@ -18,6 +25,8 @@ services:
       - "3001:3000"
     volumes:
       - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
     restart: unless-stopped
 
 volumes:
